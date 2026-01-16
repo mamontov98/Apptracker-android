@@ -1,4 +1,4 @@
-# AppTracker Android SDK
+git# AppTracker Android SDK
 
 Android SDK for tracking analytics events and sending them to the AppTracker backend.
 
@@ -33,11 +33,14 @@ Add the dependency to your app's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.YOUR_GITHUB_USERNAME:Apptracker-android:sdk:1.0.0")
+    implementation("com.github.mamontov98:Apptracker-android:sdk:1.0.0")
 }
 ```
 
-**Note:** Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
+**Note:** 
+- Replace `mamontov98` with your actual GitHub username if using a different repository
+- The `:sdk` part specifies which module to use from the multi-module project
+- You can also try without `:sdk` if the above doesn't work: `com.github.mamontov98:Apptracker-android:1.0.0`
 
 ## Quick Start
 
