@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("maven-publish")
 }
 
 android {
@@ -63,6 +64,20 @@ dependencies {
 }
 
 // JitPack configuration
-
 group = "com.github.mamontov98"
 version = "1.0.0"
+
+// Publishing configuration for JitPack
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                
+                groupId = "com.github.mamontov98"
+                artifactId = "Apptracker-android"
+                version = "1.0.0"
+            }
+        }
+    }
+}
