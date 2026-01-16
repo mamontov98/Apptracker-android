@@ -14,6 +14,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        
+        // Version information for JitPack
+        versionCode = 1
+        versionName = "1.0.0"
     }
 
     buildTypes {
@@ -58,3 +62,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
+// JitPack configuration
+// Replace 'YOUR_GITHUB_USERNAME' with your actual GitHub username
+group = "com.github.YOUR_GITHUB_USERNAME"
+version = "1.0.0"
