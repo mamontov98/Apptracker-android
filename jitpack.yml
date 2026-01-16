@@ -1,8 +1,8 @@
 jdk:
-  - openjdk11
+  - openjdk17
 before_install:
   - chmod +x ./gradlew || true
 install:
-  - ./gradlew :sdk:install -x test || ./gradlew :sdk:publishToMavenLocal -x test
-build:
+  - ./gradlew :sdk:build -x test
+script:
   - ./gradlew :sdk:assembleRelease
