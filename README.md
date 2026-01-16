@@ -4,51 +4,113 @@ Android SDK for tracking analytics events and sending them to the AppTracker bac
 
 **🏗️ Standalone Repository** - This is an independent repository containing the SDK and a demo application.
 
-## Project Structure
+## What is the SDK?
 
+The **AppTracker SDK** is a lightweight Android library that automatically tracks analytics events in your app and sends them to the AppTracker backend. 
+
+### What the SDK Does Behind the Scenes:
+
+- ✅ **Automatic Project Management** - Creates/finds your project on the server automatically
+- ✅ **Offline Support** - Events are queued locally when offline, sent when connection is restored
+- ✅ **Automatic Batching** - Groups events together for efficient network usage
+- ✅ **Periodic Flushing** - Automatically sends events every 30 seconds (configurable)
+- ✅ **Session Management** - Tracks user sessions automatically
+- ✅ **Anonymous ID Tracking** - Automatically generates and tracks anonymous user IDs
+- ✅ **User Identification** - Links events to specific users
+- ✅ **Local Storage** - Uses Room database to store events locally
+- ✅ **Smart Queue** - Events can be tracked even before SDK initialization completes
+
+**You don't need to know about any of this!** Just initialize and track events - the SDK handles everything automatically.
+
+## Installation
+
+### Via JitPack
+
+**Step 1: Add JitPack repository**
+
+In your `settings.gradle.kts` (or root `build.gradle`):
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
 ```
-android/
-├── sdk/          # SDK library module
-└── app/          # Demo application
+
+**Step 2: Add dependency**
+
+In your app's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("com.github.mamontov98:Apptracker-android:1.0.4")
+}
 ```
 
-## Setup
+**Step 3: Add Internet permission**
 
-### Prerequisites
+In your `AndroidManifest.xml`:
 
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 8 or later
-- Android SDK (API 24+)
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
 
-### Opening the Project
+That's it! You're ready to use the SDK.
 
-1. Open Android Studio
-2. Select "Open an Existing Project"
-3. Navigate to the `android` directory
-4. Click "OK"
-
-Android Studio will automatically sync the Gradle files and download dependencies.
-
-## SDK Usage
+## Quick Start
 
 ### 1. Initialize the SDK
 
+Create an `Application` class (if you don't have one):
+
 ```kotlin
+import android.app.Application
 import com.apptracker.sdk.AppTracker
 import com.apptracker.sdk.AppTrackerConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
-// In your Application class or Activity
-val config = AppTrackerConfig(
-    projectKey = "your-project-key",
-    baseUrl = "http://10.0.2.2:5000", // For emulator
-    batchSize = 20,
-    flushInterval = 30_000L // 30 seconds
-)
-
-AppTracker.initialize(context, config)
+class MyApplication : Application() {
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
+    override fun onCreate() {
+        super.onCreate()
+        
+        applicationScope.launch {
+            val config = AppTrackerConfig(
+                projectName = "My App",
+                baseUrl = "https://apptracker-backend.vercel.app"
+            )
+            AppTracker.initialize(this@MyApplication, config)
+        }
+    }
+}
 ```
 
+Register it in `AndroidManifest.xml`:
+
+```xml
+<application
+    android:name=".MyApplication"
+    ...>
+</application>
+```
+
+**That's it!** The SDK will automatically:
+- Check if your project exists on the server
+- Create it if it doesn't exist
+- Save the project key for future use
+- Start tracking events
+
 ### 2. Track Events
+
+You can start tracking immediately - even before initialization completes!
 
 ```kotlin
 // Track a simple event
@@ -59,59 +121,169 @@ AppTracker.track("screen_view", mapOf(
     "screen_name" to "HomeScreen",
     "screen_class" to "MainActivity"
 ))
+
+// Track purchase
+AppTracker.track("purchase", mapOf(
+    "product_id" to "123",
+    "price" to 99.99,
+    "currency" to "USD"
+))
 ```
 
-### 3. Identify Users
+### 3. Identify Users (Optional)
 
 ```kotlin
-// Identify a user
+// When user logs in
 AppTracker.identify("user-12345")
 ```
 
-### 4. Flush Events
+### 4. Flush Events (Optional)
 
 ```kotlin
-// Manually flush pending events
+// Manually flush pending events to the server
 AppTracker.flush()
 ```
 
 ## Configuration
 
-### Base URL
+### AppTrackerConfig Parameters
 
-- **Development (Android Emulator)**: Use `http://10.0.2.2:5000` (maps to host's localhost)
-- **Development (Physical Device)**: Use your computer's IP address (e.g., `http://192.168.1.100:5000`)
-- **Production (Cloud)**: Use your production server URL (e.g., `https://apptracker-backend.herokuapp.com`)
+- **projectName** (required): Name of your project. The SDK will create or find a project with this name.
+- **baseUrl** (optional): Backend server URL. Default: `"https://apptracker-backend.vercel.app"`
+- **projectKey** (optional): If you already have a project key, you can provide it directly.
+- **batchSize** (optional): Number of events to batch before sending. Default: `20`
+- **flushInterval** (optional): Time in milliseconds between automatic flushes. Default: `30000` (30 seconds)
 
-**Important for Production:**
-- Always use HTTPS in production
-- Use the cloud-deployed backend URL (provided by your AppTracker service)
-- Update `AppTrackerConfig.baseUrl` to point to your production backend
+### Example with Custom Configuration
 
-### Batch Settings
+```kotlin
+val config = AppTrackerConfig(
+    projectName = "My Awesome App",
+    baseUrl = "https://apptracker-backend.vercel.app",
+    batchSize = 50,
+    flushInterval = 60_000L // 1 minute
+)
+AppTracker.initialize(context, config)
+```
 
-- `batchSize`: Number of events to batch before sending (default: 20)
-- `flushInterval`: Time in milliseconds between automatic flushes (default: 30000)
+## What Does the Demo App Demonstrate?
+
+The `app` module contains a complete e-commerce demo application that shows:
+
+### 1. SDK Initialization
+- How to set up the SDK in your Application class (`AppTrackerApplication`)
+- Automatic initialization in the background
+- Error handling during initialization
+
+### 2. Event Tracking Examples
+
+The demo app tracks various user actions automatically:
+
+#### Screen Views
+- **Home Screen** - When user opens the home screen
+- **Product Details** - When user views a product
+- **Cart Screen** - When user opens the shopping cart
+- **Profile Screen** - When user opens their profile
+
+#### User Actions
+- **Button Clicks** - Navigation buttons, "View Details", "Add to Cart", "Checkout"
+- **Product Views** - When user views product details
+- **Add to Cart** - When user adds a product to cart
+- **Remove from Cart** - When user removes a product from cart
+- **Checkout Started** - When user starts the checkout process
+- **Purchase Initiated** - When user clicks "Buy Now"
+
+#### E-commerce Events
+- **View Item** - Product details with product ID, name, and price
+- **Add to Cart** - Product added to cart with full product information
+- **Remove from Cart** - Product removed from cart
+- **View Cart** - Cart view with item count and total value
+- **Checkout Started** - Checkout initiation with total amount
+- **Purchase Initiated** - Purchase flow started
+
+### 3. Real-world Usage
+
+The demo app demonstrates a complete shopping flow:
+- **Product Catalog** - Browse products on the home screen
+- **Product Details** - View detailed product information
+- **Shopping Cart** - Add/remove items, view total
+- **Checkout** - Start checkout process
+- **Navigation** - Bottom navigation between screens
+
+### 4. Automatic Tracking with Annotations
+
+The demo app uses custom annotations to automatically track events:
+
+```kotlin
+@TrackScreenView(screenName = "Home")
+override fun onResume() { ... }
+
+@TrackButtonClick(buttonId = "add_to_cart", buttonText = "Add to Cart")
+@TrackAddToCart
+private fun onAddToCartClick(product: Product) { ... }
+```
+
+### 5. User Identification
+
+- Example of how to identify users when they log in
+- Anonymous ID tracking (automatic)
+
+## Project Structure
+
+```
+Apptracker-android/
+├── sdk/          # SDK library module (published to JitPack)
+│   ├── src/main/java/com/apptracker/sdk/
+│   │   ├── AppTracker.kt           # Main SDK class
+│   │   ├── AppTrackerConfig.kt     # Configuration
+│   │   ├── Event.kt                # Event model
+│   │   ├── network/                # Network layer (Retrofit)
+│   │   ├── queue/                  # Event queue management
+│   │   └── storage/                # Local storage (Room)
+│   └── build.gradle.kts
+│
+└── app/          # Demo application
+    ├── src/main/java/com/apptracker/demo/
+    │   ├── AppTrackerApplication.kt    # SDK initialization
+    │   ├── ui/                         # Activities (Home, Cart, Details, Profile)
+    │   ├── data/                       # Models and managers
+    │   ├── tracking/                   # Tracking annotations and interceptors
+    │   └── annotations/                # Custom tracking annotations
+    └── build.gradle.kts
+```
 
 ## Features
 
-- ✅ Offline event queuing
-- ✅ Automatic batching
-- ✅ Periodic flushing
-- ✅ Session management
-- ✅ Anonymous ID tracking
-- ✅ User identification
-- ✅ Local storage with Room
+- ✅ **Zero Configuration** - Just provide project name and base URL
+- ✅ **Automatic Project Management** - SDK handles project creation and key management
+- ✅ **Works Before Initialization** - Track events immediately, SDK queues them automatically
+- ✅ **Offline Support** - Events are queued locally when offline
+- ✅ **Automatic Batching** - Events are batched for efficient network usage
+- ✅ **Periodic Flushing** - Events are automatically sent at intervals
+- ✅ **Session Management** - Automatic session tracking
+- ✅ **Anonymous ID Tracking** - Automatic anonymous user identification
+- ✅ **User Identification** - Support for user identification
+- ✅ **Local Storage** - Events stored locally using Room database
 
-## Demo App
+## How It Works
 
-The `app` module contains a demo application that demonstrates SDK usage:
+1. **Initialization**: When you call `AppTracker.initialize()`, the SDK:
+   - Checks if a project key is saved locally
+   - If found, verifies it exists on the server
+   - If not found or invalid, creates a new project
+   - Saves the project key for future use
+   - Transfers any events tracked before initialization
 
-1. Initialize SDK with project key
-2. Track custom events
-3. Identify users
-4. Flush events manually
-5. View SDK status and pending event count
+2. **Event Tracking**: When you call `AppTracker.track()`:
+   - If SDK is initialized: Event is saved to local database (Room)
+   - If SDK not initialized yet: Event is saved to pending queue
+   - If batch size is reached, events are sent immediately
+   - Otherwise, events wait for periodic flush
+
+3. **Automatic Flushing**: Every `flushInterval` milliseconds:
+   - SDK collects pending events from database
+   - Sends them as a batch to the server
+   - Removes sent events from database
 
 ## Building
 
@@ -133,34 +305,37 @@ The `app` module contains a demo application that demonstrates SDK usage:
 ./gradlew :app:installDebug
 ```
 
-## User Guide
+## Requirements
 
-**📖 New to the SDK?** Check out the complete [SDK Usage Guide](SDK_USAGE_GUIDE.md) for step-by-step instructions on:
-- Adding the SDK to your project
-- Initializing the SDK
-- Tracking events
-- Common use cases
-- Troubleshooting
-
-## API Reference
-
-See [API_SPEC.md](../API_SPEC.md) for the backend API specification.
+- Android API 24+ (Android 7.0+)
+- Kotlin
+- Internet permission
 
 ## Troubleshooting
 
 ### Events Not Sending
 
-1. Check that the backend is running
-2. Verify the base URL is correct
-3. For emulator, use `http://10.0.2.2:5000`
-4. For physical device, use your computer's IP address
-5. Check AndroidManifest.xml has INTERNET permission
+1. Check that the backend is running at `https://apptracker-backend.vercel.app`
+2. Verify the base URL is correct in your config
+3. Check AndroidManifest.xml has INTERNET permission
+4. Check Logcat for SDK initialization messages
 
-### CORS Errors
+### SDK Not Initializing
 
-CORS is only for browser requests. Android apps make direct HTTP requests, so CORS shouldn't be an issue. If you see CORS errors, they're likely from the frontend, not the Android app.
+1. Make sure you have an Application class registered in AndroidManifest.xml
+2. Check that you're calling `AppTracker.initialize()` in `Application.onCreate()`
+3. Verify your baseUrl is accessible
+4. Check Logcat for error messages
+
+### Dependency Not Found
+
+If you get "Could not find" error with JitPack:
+
+1. Make sure JitPack repository is added to `settings.gradle.kts`
+2. Try syncing Gradle files (File → Sync Project with Gradle Files)
+3. Check the JitPack build status: https://jitpack.io/#mamontov98/Apptracker-android
+4. Verify the version number (use the latest version with green checkmark)
 
 ## License
 
 See main project LICENSE file.
-
