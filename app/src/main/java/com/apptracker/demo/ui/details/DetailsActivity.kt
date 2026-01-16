@@ -1,4 +1,4 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.details
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,8 +6,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityDetailsBinding
-import com.apptracker.demo.model.Product
+import com.apptracker.demo.data.model.Product
+import com.apptracker.demo.data.manager.CartManager
 import com.apptracker.demo.tracking.TrackingInterceptor
+import com.apptracker.demo.ui.cart.CartActivity
+import com.apptracker.demo.ui.home.HomeActivity
+import com.apptracker.demo.ui.profile.ProfileActivity
 import com.apptracker.sdk.AppTracker
 
 class DetailsActivity : AppCompatActivity() {
@@ -171,4 +175,3 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 }
-

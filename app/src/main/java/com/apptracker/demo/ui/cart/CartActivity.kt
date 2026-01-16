@@ -1,4 +1,4 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.cart
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityCartBinding
+import com.apptracker.demo.data.manager.CartManager
 import com.apptracker.demo.tracking.TrackingInterceptor
+import com.apptracker.demo.ui.home.HomeActivity
+import com.apptracker.demo.ui.profile.ProfileActivity
 import com.apptracker.sdk.AppTracker
 
 class CartActivity : AppCompatActivity() {
@@ -171,4 +174,3 @@ class CartActivity : AppCompatActivity() {
         Toast.makeText(this, "Checkout started!", Toast.LENGTH_SHORT).show()
     }
 }
-

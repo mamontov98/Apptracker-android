@@ -1,4 +1,4 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityHomeBinding
-import com.apptracker.demo.model.Product
+import com.apptracker.demo.data.model.Product
+import com.apptracker.demo.data.manager.CartManager
 import com.apptracker.demo.tracking.TrackingInterceptor
+import com.apptracker.demo.ui.cart.CartActivity
+import com.apptracker.demo.ui.profile.ProfileActivity
 import com.apptracker.sdk.AppTracker
 
 class HomeActivity : AppCompatActivity() {
@@ -93,7 +96,7 @@ class HomeActivity : AppCompatActivity() {
             android.util.Log.e("AppTracker", "Error processing onViewDetailsClick tracking: ${e.message}", e)
         }
         
-        val intent = Intent(this, DetailsActivity::class.java).apply {
+        val intent = Intent(this, com.apptracker.demo.ui.details.DetailsActivity::class.java).apply {
             putExtra("product_id", product.id)
             putExtra("product_name", product.name)
             putExtra("product_description", product.description)
@@ -174,4 +177,3 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 }
-

@@ -1,4 +1,4 @@
-package com.apptracker.demo.model
+package com.apptracker.demo.data.model
 
 data class Product(
     val id: String,
@@ -7,6 +7,3 @@ data class Product(
     val price: Double,
     val imageResId: Int = 0 // For demo, we'll use placeholder
 )
-
-
-

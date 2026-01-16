@@ -1,10 +1,10 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.apptracker.demo.databinding.ItemProductBinding
-import com.apptracker.demo.model.Product
+import com.apptracker.demo.data.model.Product
 
 class ProductAdapter(
     private val products: List<Product>,
@@ -50,6 +50,3 @@ class ProductAdapter(
         }
     }
 }
-
-
-

@@ -1,11 +1,7 @@
-package com.apptracker.demo
+package com.apptracker.demo.data.manager
 
-import com.apptracker.demo.model.Product
-
-data class CartItem(
-    val product: Product,
-    var quantity: Int = 1
-)
+import com.apptracker.demo.data.model.CartItem
+import com.apptracker.demo.data.model.Product
 
 object CartManager {
     private val cartItems = mutableListOf<CartItem>()
@@ -39,6 +35,3 @@ object CartManager {
 
     fun isEmpty(): Boolean = cartItems.isEmpty()
 }
-
-
-

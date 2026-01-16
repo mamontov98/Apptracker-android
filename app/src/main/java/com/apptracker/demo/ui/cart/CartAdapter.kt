@@ -1,9 +1,10 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.cart
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.apptracker.demo.databinding.ItemCartBinding
+import com.apptracker.demo.data.model.CartItem
 
 class CartAdapter(
     private val cartItems: List<CartItem>,
@@ -41,6 +42,3 @@ class CartAdapter(
         }
     }
 }
-
-
-

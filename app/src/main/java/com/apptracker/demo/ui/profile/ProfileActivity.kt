@@ -1,4 +1,4 @@
-package com.apptracker.demo
+package com.apptracker.demo.ui.profile
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityProfileBinding
 import com.apptracker.demo.tracking.TrackingInterceptor
+import com.apptracker.demo.ui.cart.CartActivity
+import com.apptracker.demo.ui.home.HomeActivity
 import com.apptracker.sdk.AppTracker
 
 class ProfileActivity : AppCompatActivity() {
@@ -97,6 +99,3 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 }
-
-
-
