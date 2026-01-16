@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
 
 /**
  * Main AppTracker SDK class.
@@ -72,20 +71,17 @@ object AppTracker {
         }
         
         // Transfer all pending events to the queue
-        val pendingCount = synchronized(pendingEvents) {
-            pendingEvents.size
+        val eventsToTransfer = synchronized(pendingEvents) {
+            pendingEvents.toList().also { pendingEvents.clear() }
         }
         
-        if (pendingCount > 0) {
+        if (eventsToTransfer.isNotEmpty()) {
             withContext(Dispatchers.IO) {
-                synchronized(pendingEvents) {
-                    pendingEvents.forEach { event ->
-                        eventQueue?.enqueue(event)
-                    }
-                    pendingEvents.clear()
+                eventsToTransfer.forEach { event ->
+                    eventQueue?.enqueue(event)
                 }
             }
-            android.util.Log.d("AppTracker", "Transferred $pendingCount pending events to queue")
+            android.util.Log.d("AppTracker", "Transferred ${eventsToTransfer.size} pending events to queue")
         }
 
         isInitialized = true
@@ -99,7 +95,9 @@ object AppTracker {
      * @param properties Optional properties map
      */
     fun track(eventName: String, properties: Map<String, Any>? = null) {
-        val timestamp = Instant.now().toString()
+        val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")
+        }.format(java.util.Date())
         val event = Event(
             eventName = eventName,
             timestamp = timestamp,

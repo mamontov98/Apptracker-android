@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.apptracker.demo.R
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityDetailsBinding
 import com.apptracker.demo.data.model.Product

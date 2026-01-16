@@ -3,6 +3,7 @@ package com.apptracker.sdk.storage
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -11,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface EventDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(event: EventEntity): Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(events: List<EventEntity>): List<Long>
 
     @Query("SELECT * FROM events ORDER BY createdAt ASC LIMIT :limit")

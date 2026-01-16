@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.apptracker.demo.R
 import com.apptracker.demo.annotations.*
 import com.apptracker.demo.databinding.ActivityCartBinding
 import com.apptracker.demo.data.manager.CartManager

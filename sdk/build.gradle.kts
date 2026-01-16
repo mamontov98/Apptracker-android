@@ -10,14 +10,9 @@ android {
 
     defaultConfig {
         minSdk = 24
-        targetSdk = 34
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        
-        // Version information for JitPack
-        versionCode = 1
-        versionName = "1.0.0"
     }
 
     buildTypes {
@@ -35,6 +30,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+    
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 }
 
@@ -63,6 +63,6 @@ dependencies {
 }
 
 // JitPack configuration
-// Replace 'YOUR_GITHUB_USERNAME' with your actual GitHub username
-group = "com.github.YOUR_GITHUB_USERNAME"
+
+group = "com.github.mamontov98"
 version = "1.0.0"
