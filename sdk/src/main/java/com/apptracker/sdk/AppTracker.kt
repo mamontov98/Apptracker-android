@@ -232,26 +232,41 @@ object AppTracker {
         return withContext(Dispatchers.IO) {
             try {
                 android.util.Log.d("AppTracker", "Searching for project by name: $projectName")
+                android.util.Log.d("AppTracker", "API call: GET $baseUrl/v1/projects?name=$projectName")
                 val api = ApiClient.create(baseUrl)
                 val response = api.getProjects(projectKey = null, name = projectName)
                 
+                android.util.Log.d("AppTracker", "Search response code: ${response.code()}")
+                android.util.Log.d("AppTracker", "Search response success: ${response.isSuccessful}")
+                
                 if (response.isSuccessful) {
                     val projects = response.body()?.projects
+                    android.util.Log.d("AppTracker", "Search returned ${projects?.size ?: 0} projects")
+                    
+                    projects?.forEach { project ->
+                        android.util.Log.d("AppTracker", "  - Project: name='${project.name}', key='${project.projectKey}'")
+                    }
+                    
                     val matchingProject = projects?.firstOrNull { it.name == projectName }
                     
                     if (matchingProject != null) {
-                        android.util.Log.d("AppTracker", "Found existing project: ${matchingProject.projectKey}")
+                        android.util.Log.d("AppTracker", "✅ Found existing project: ${matchingProject.projectKey}")
                         return@withContext matchingProject.projectKey
                     } else {
-                        android.util.Log.d("AppTracker", "No project found with name: $projectName")
+                        android.util.Log.d("AppTracker", "❌ No project found with exact name: $projectName")
+                        if (projects != null && projects.isNotEmpty()) {
+                            android.util.Log.w("AppTracker", "⚠️ Server returned projects but none matched the name exactly")
+                        }
                         return@withContext null
                     }
                 } else {
-                    android.util.Log.e("AppTracker", "Error searching for project. Response code: ${response.code()}")
+                    android.util.Log.e("AppTracker", "❌ Error searching for project. Response code: ${response.code()}, message: ${response.message()}")
+                    android.util.Log.e("AppTracker", "Response body: ${response.errorBody()?.string()}")
                     return@withContext null
                 }
             } catch (e: Exception) {
-                android.util.Log.e("AppTracker", "Error searching for project by name: ${e.message}", e)
+                android.util.Log.e("AppTracker", "❌ Exception while searching for project by name: ${e.message}", e)
+                e.printStackTrace()
                 null
             }
         }
@@ -328,10 +343,12 @@ object AppTracker {
                 } else {
                     android.util.Log.d("AppTracker", "Saved project key doesn't exist, will search by name")
                 }
+            } else {
+                android.util.Log.d("AppTracker", "No saved project key found, will search by name")
             }
             
             // Priority 3: Search for existing project by name
-            android.util.Log.d("AppTracker", "Searching for existing project by name: $projectName")
+            android.util.Log.d("AppTracker", "Priority 3: Searching for existing project by name: $projectName")
             val existingProjectKey = findProjectByName(projectName, baseUrl)
             if (existingProjectKey != null) {
                 // Save it for next time

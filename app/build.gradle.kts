@@ -40,10 +40,10 @@ android {
 
 dependencies {
     // Local dependency (for development - currently active)
-    //implementation(project(":sdk"))
+    implementation(project(":sdk"))
     
-    // JitPack dependency (for production use)
-    implementation("com.github.mamontov98:Apptracker-android:1.0.4")
+    // JitPack dependency (for production use - commented out for development)
+    // implementation("com.github.mamontov98:Apptracker-android:1.0.4")
     // implementation("com.github.mamontov98:Apptracker-android:sdk:1.0.4")
     
     // Core Android
