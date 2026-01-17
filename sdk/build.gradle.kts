@@ -65,7 +65,7 @@ dependencies {
 
 // JitPack configuration
 group = "com.github.mamontov98"
-version = "1.0.0"
+version = "1.0.5"
 
 // Publishing configuration for JitPack
 afterEvaluate {
@@ -74,9 +74,9 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 
-                groupId = "com.github.mamontov98"
-                artifactId = "Apptracker-android"
-                version = "1.0.0"
+                    groupId = "com.github.mamontov98"
+                    artifactId = "Apptracker-android"
+                    version = "1.0.5"
             }
         }
     }
