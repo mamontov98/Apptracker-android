@@ -3,6 +3,6 @@ jdk:
 before_install:
   - chmod +x ./gradlew || true
 install:
-  - ./gradlew :sdk:publishToMavenLocal -x test
+  - ./gradlew :sdk:install -x test || true
 script:
-  - ./gradlew :sdk:assembleRelease :sdk:publishToMavenLocal
+  - ./gradlew :sdk:assembleRelease

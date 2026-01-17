@@ -42,9 +42,8 @@ dependencies {
     // Local dependency (for development)
     // implementation(project(":sdk"))
     
-    // JitPack dependency (for production use - currently active)
-    implementation("com.github.mamontov98:Apptracker-android:1.0.5")
-    // implementation("com.github.mamontov98:Apptracker-android:sdk:1.0.5")
+    // JitPack dependency (for production use)
+    implementation("com.github.mamontov98:Apptracker-android:v1.0.5")
     
     // Core Android
     implementation("androidx.core:core-ktx:1.12.0")

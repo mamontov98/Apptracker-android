@@ -10,7 +10,7 @@ The **AppTracker SDK** is a lightweight Android library that automatically track
 
 ### What the SDK Does Behind the Scenes:
 
-- ✅ **Automatic Project Management** - Creates/finds your project on the server automatically
+- ✅ **Automatic Project Management** - Creates/finds your project on the server automatically by name
 - ✅ **Offline Support** - Events are queued locally when offline, sent when connection is restored
 - ✅ **Automatic Batching** - Groups events together for efficient network usage
 - ✅ **Periodic Flushing** - Automatically sends events every 30 seconds (configurable)
@@ -47,9 +47,11 @@ In your app's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.mamontov98:Apptracker-android:1.0.4")
+    implementation("com.github.mamontov98:Apptracker-android:v1.0.5")
 }
 ```
+
+**Note:** Use `v1.0.5` (with `v`) because the Git tag is `v1.0.5`. For other versions, check the tag name in your repository.
 
 **Step 3: Add Internet permission**
 
@@ -255,7 +257,7 @@ Apptracker-android/
 ## Features
 
 - ✅ **Zero Configuration** - Just provide project name and base URL
-- ✅ **Automatic Project Management** - SDK handles project creation and key management
+- ✅ **Automatic Project Management** - SDK handles project creation and key management, automatically finds existing projects by name
 - ✅ **Works Before Initialization** - Track events immediately, SDK queues them automatically
 - ✅ **Offline Support** - Events are queued locally when offline
 - ✅ **Automatic Batching** - Events are batched for efficient network usage
@@ -268,11 +270,14 @@ Apptracker-android/
 ## How It Works
 
 1. **Initialization**: When you call `AppTracker.initialize()`, the SDK:
-   - Checks if a project key is saved locally
-   - If found, verifies it exists on the server
-   - If not found or invalid, creates a new project
+   - Checks if a project key is saved locally (Priority 1)
+   - If found, verifies it exists on the server (Priority 2)
+   - If not found, searches for existing project by name (Priority 3)
+   - If no project found, creates a new project (Priority 4)
    - Saves the project key for future use
    - Transfers any events tracked before initialization
+   
+   **Important:** All devices using the same `projectName` will automatically use the same project, ensuring unified analytics across all users.
 
 2. **Event Tracking**: When you call `AppTracker.track()`:
    - If SDK is initialized: Event is saved to local database (Room)
