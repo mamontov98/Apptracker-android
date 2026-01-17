@@ -62,7 +62,10 @@ interface AppTrackerApi {
     suspend fun sendBatchEvents(@Body request: BatchEventsRequest): Response<BatchEventsResponse>
     
     @GET("/v1/projects")
-    suspend fun getProjects(@Query("projectKey") projectKey: String? = null): Response<ProjectsResponse>
+    suspend fun getProjects(
+        @Query("projectKey") projectKey: String? = null,
+        @Query("name") name: String? = null
+    ): Response<ProjectsResponse>
     
     @POST("/v1/projects")
     suspend fun createProject(@Body request: CreateProjectRequest): Response<ProjectResponse>

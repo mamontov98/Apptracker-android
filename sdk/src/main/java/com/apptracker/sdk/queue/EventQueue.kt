@@ -77,6 +77,8 @@ class EventQueue(
      */
     suspend fun enqueue(event: Event) {
         withContext(Dispatchers.IO) {
+            android.util.Log.d("AppTracker", "Enqueue: Adding event: ${event.eventName}")
+            
             val enrichedEvent = event.copy(
                 anonymousId = event.anonymousId ?: anonymousId,
                 userId = event.userId ?: currentUserId,
@@ -85,13 +87,18 @@ class EventQueue(
 
             val entity = EventEntity.fromEvent(enrichedEvent)
             eventDao.insert(entity)
+            
+            android.util.Log.d("AppTracker", "Enqueue: Event saved to local DB: ${event.eventName}")
 
             // Update last activity for session management
             prefs.edit().putLong("last_activity", System.currentTimeMillis()).apply()
 
             // Check if we should flush immediately
             val count = eventDao.getEventCount()
+            android.util.Log.d("AppTracker", "Enqueue: Current event count in DB: $count (batch size: $batchSize)")
+            
             if (count >= batchSize) {
+                android.util.Log.d("AppTracker", "Enqueue: Batch size reached ($batchSize), flushing immediately")
                 flush()
             }
         }
@@ -125,29 +132,44 @@ class EventQueue(
     suspend fun flush() {
         withContext(Dispatchers.IO) {
             try {
+                android.util.Log.d("AppTracker", "Flush: Starting flush operation")
+                
                 val pendingEvents = eventDao.getPendingEvents(batchSize)
+                android.util.Log.d("AppTracker", "Flush: Found ${pendingEvents.size} pending events")
+                
                 if (pendingEvents.isEmpty()) {
+                    android.util.Log.d("AppTracker", "Flush: No events to send")
                     return@withContext
                 }
 
                 val events = pendingEvents.map { it.toEvent() }
+                android.util.Log.d("AppTracker", "Flush: Sending ${events.size} events to server: ${events.map { it.eventName }}")
+                
                 val request = BatchEventsRequest(
                     projectKey = projectKey,
                     events = events
                 )
 
+                android.util.Log.d("AppTracker", "Flush: Sending request to: $baseUrl with projectKey: $projectKey")
                 val response = apiClient.sendBatchEvents(request)
-
+                
+                android.util.Log.d("AppTracker", "Flush: Response code: ${response.code()}, success: ${response.isSuccessful}")
+                
                 if (response.isSuccessful) {
                     // Delete sent events
                     val ids = pendingEvents.map { it.id }
                     eventDao.deleteByIds(ids)
+                    android.util.Log.d("AppTracker", "Flush: Successfully sent ${events.size} events, deleted from local DB")
                 } else {
+                    android.util.Log.e("AppTracker", "Flush: Failed to send events. Response code: ${response.code()}, message: ${response.message()}")
+                    response.errorBody()?.string()?.let { errorBody ->
+                        android.util.Log.e("AppTracker", "Flush: Error body: $errorBody")
+                    }
                     // Keep events for retry
                     // Could implement exponential backoff here
                 }
             } catch (e: Exception) {
-                // Network error - events remain in queue for retry
+                android.util.Log.e("AppTracker", "Flush: Error sending events: ${e.message}", e)
                 e.printStackTrace()
             }
         }
@@ -158,9 +180,11 @@ class EventQueue(
      */
     private fun startPeriodicFlush() {
         flushJob?.cancel()
+        android.util.Log.d("AppTracker", "EventQueue: Starting periodic flush with interval: ${flushInterval}ms")
         flushJob = scope.launch {
             while (isActive) {
                 delay(flushInterval)
+                android.util.Log.d("AppTracker", "EventQueue: Periodic flush triggered")
                 flush()
             }
         }

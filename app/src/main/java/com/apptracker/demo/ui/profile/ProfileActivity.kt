@@ -30,7 +30,8 @@ class ProfileActivity : AppCompatActivity() {
         // Process screen view tracking
         if (AppTracker.isInitialized()) {
             try {
-                val method = this::class.java.getMethod("onResume")
+                val method = this::class.java.getDeclaredMethod("onResume")
+                method.isAccessible = true
                 TrackingInterceptor.processMethod(this, method)
             } catch (e: Exception) {
                 android.util.Log.e("AppTracker", "Error processing onResume tracking: ${e.message}", e)

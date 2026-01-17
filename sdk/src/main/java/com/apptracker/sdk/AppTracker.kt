@@ -95,6 +95,8 @@ object AppTracker {
      * @param properties Optional properties map
      */
     fun track(eventName: String, properties: Map<String, Any>? = null) {
+        android.util.Log.d("AppTracker", "track() called: eventName=$eventName, isInitialized=$isInitialized")
+        
         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(java.util.Date())
@@ -106,6 +108,7 @@ object AppTracker {
 
         if (isInitialized) {
             // SDK is initialized - send directly
+            android.util.Log.d("AppTracker", "track() - SDK initialized, sending event to queue: $eventName")
             CoroutineScope(Dispatchers.IO).launch {
                 eventQueue?.enqueue(event)
             }
@@ -207,13 +210,49 @@ object AppTracker {
             try {
                 android.util.Log.d("AppTracker", "Checking if project exists: $projectKey")
                 val api = ApiClient.create(baseUrl)
-                val response = api.getProjects(projectKey)
+                val response = api.getProjects(projectKey = projectKey, name = null)
                 val exists = response.isSuccessful && response.body()?.projects?.isNotEmpty() == true
                 android.util.Log.d("AppTracker", "Project exists check result: $exists (response code: ${response.code()})")
                 exists
             } catch (e: Exception) {
                 android.util.Log.e("AppTracker", "Error checking project existence: ${e.message}", e)
                 false
+            }
+        }
+    }
+
+    /**
+     * Find a project by name.
+     * Can be called before SDK initialization.
+     * @param projectName Name of the project to find
+     * @param baseUrl Base URL of the backend
+     * @return Project key if found, null otherwise
+     */
+    suspend fun findProjectByName(projectName: String, baseUrl: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                android.util.Log.d("AppTracker", "Searching for project by name: $projectName")
+                val api = ApiClient.create(baseUrl)
+                val response = api.getProjects(projectKey = null, name = projectName)
+                
+                if (response.isSuccessful) {
+                    val projects = response.body()?.projects
+                    val matchingProject = projects?.firstOrNull { it.name == projectName }
+                    
+                    if (matchingProject != null) {
+                        android.util.Log.d("AppTracker", "Found existing project: ${matchingProject.projectKey}")
+                        return@withContext matchingProject.projectKey
+                    } else {
+                        android.util.Log.d("AppTracker", "No project found with name: $projectName")
+                        return@withContext null
+                    }
+                } else {
+                    android.util.Log.e("AppTracker", "Error searching for project. Response code: ${response.code()}")
+                    return@withContext null
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("AppTracker", "Error searching for project by name: ${e.message}", e)
+                null
             }
         }
     }
@@ -287,14 +326,22 @@ object AppTracker {
                     android.util.Log.d("AppTracker", "Saved project key exists, using it")
                     return@withContext savedKey
                 } else {
-                    android.util.Log.d("AppTracker", "Saved project key doesn't exist, will create new project")
+                    android.util.Log.d("AppTracker", "Saved project key doesn't exist, will search by name")
                 }
-            } else {
-                android.util.Log.d("AppTracker", "No saved project key, will create new project")
             }
             
-            // Priority 3: Create new project
-            android.util.Log.d("AppTracker", "Creating new project...")
+            // Priority 3: Search for existing project by name
+            android.util.Log.d("AppTracker", "Searching for existing project by name: $projectName")
+            val existingProjectKey = findProjectByName(projectName, baseUrl)
+            if (existingProjectKey != null) {
+                // Save it for next time
+                prefs.edit().putString("project_key", existingProjectKey).apply()
+                android.util.Log.d("AppTracker", "Found existing project, using key: $existingProjectKey")
+                return@withContext existingProjectKey
+            }
+            
+            // Priority 4: Create new project (only if not found)
+            android.util.Log.d("AppTracker", "No existing project found, creating new project...")
             val newProjectKey = createProject(projectName, baseUrl)
             
             if (newProjectKey != null) {

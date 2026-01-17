@@ -44,7 +44,8 @@ class HomeActivity : AppCompatActivity() {
         // Process tracking annotation
         if (AppTracker.isInitialized()) {
             try {
-                val method = this::class.java.getMethod("onResume")
+                val method = this::class.java.getDeclaredMethod("onResume")
+                method.isAccessible = true
                 TrackingInterceptor.processMethod(this, method)
             } catch (e: Exception) {
                 android.util.Log.e("AppTracker", "Error processing onResume tracking: ${e.message}", e)
@@ -55,7 +56,8 @@ class HomeActivity : AppCompatActivity() {
             binding.root.postDelayed({
                 if (AppTracker.isInitialized()) {
                     try {
-                        val method = this::class.java.getMethod("onResume")
+                        val method = this::class.java.getDeclaredMethod("onResume")
+                        method.isAccessible = true
                         TrackingInterceptor.processMethod(this, method)
                     } catch (e: Exception) {
                         android.util.Log.e("AppTracker", "Error processing onResume tracking: ${e.message}", e)
