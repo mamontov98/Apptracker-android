@@ -1,8 +1,6 @@
 package com.apptracker.sdk
 
-/**
- * Represents an analytics event to be tracked.
- */
+// Represents an analytics event to be tracked
 data class Event(
     val eventName: String,
     val timestamp: String, // ISO 8601 format

@@ -7,9 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Data Access Object for EventEntity.
- */
+// Data Access Object for EventEntity
 @Dao
 interface EventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

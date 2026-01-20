@@ -1,8 +1,6 @@
 package com.apptracker.sdk
 
-/**
- * Configuration for AppTracker SDK.
- */
+// Configuration for AppTracker SDK
 data class AppTrackerConfig(
     val projectName: String,
     val baseUrl: String = "https://apptracker-backend.vercel.app", // Default production URL

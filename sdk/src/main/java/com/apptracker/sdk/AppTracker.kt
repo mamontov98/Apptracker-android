@@ -10,10 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Main AppTracker SDK class.
- * Singleton instance for tracking analytics events.
- */
+// Main AppTracker SDK class - Singleton for tracking analytics events
 object AppTracker {
     private var isInitialized = false
     private var eventQueue: EventQueue? = null
@@ -24,15 +21,7 @@ object AppTracker {
     private var pendingUserId: String? = null
     private var pendingAnonymousId: String? = null
 
-    /**
-     * Initialize the SDK with configuration.
-     * Automatically ensures project exists and gets/creates project key.
-     * Must be called before using any other methods.
-     * 
-     * @param context Application context
-     * @param config SDK configuration with projectName and baseUrl
-     * @throws IllegalStateException if SDK is already initialized or if project key cannot be obtained
-     */
+    // Initialize the SDK with configuration - must be called before using other methods
     suspend fun initialize(context: Context, config: AppTrackerConfig) {
         if (isInitialized) {
             throw IllegalStateException("AppTracker is already initialized")
@@ -88,12 +77,7 @@ object AppTracker {
         android.util.Log.d("AppTracker", "SDK initialization completed")
     }
 
-    /**
-     * Track an event.
-     * Can be called before initialization - events will be queued and sent after initialization.
-     * @param eventName Name of the event
-     * @param properties Optional properties map
-     */
+    // Track an event - can be called before initialization, events will be queued
     fun track(eventName: String, properties: Map<String, Any>? = null) {
         android.util.Log.d("AppTracker", "track() called: eventName=$eventName, isInitialized=$isInitialized")
         
@@ -121,11 +105,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Identify a user.
-     * Can be called before initialization - will be applied after initialization.
-     * @param userId User identifier
-     */
+    // Identify a user - can be called before initialization
     fun identify(userId: String) {
         if (isInitialized) {
             eventQueue?.setUserId(userId)
@@ -135,11 +115,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Set anonymous ID.
-     * Can be called before initialization - will be applied after initialization.
-     * @param anonymousId Anonymous identifier
-     */
+    // Set anonymous ID - can be called before initialization
     fun setAnonymousId(anonymousId: String) {
         if (isInitialized) {
             eventQueue?.setAnonymousId(anonymousId)
@@ -149,9 +125,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Get current user ID.
-     */
+    // Get current user ID
     fun getUserId(): String? {
         return if (isInitialized) {
             eventQueue?.getUserId()
@@ -160,10 +134,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Flush all pending events to the server immediately.
-     * If SDK is not initialized yet, this will do nothing (events are already queued).
-     */
+    // Flush all pending events to the server immediately
     fun flush() {
         if (isInitialized) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -174,10 +145,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Get the number of pending events.
-     * Includes both events in the queue (if initialized) and pending events (if not initialized).
-     */
+    // Get the number of pending events
     suspend fun getPendingCount(): Int {
         return if (isInitialized) {
             eventQueue?.getPendingCount() ?: 0
@@ -188,23 +156,13 @@ object AppTracker {
         }
     }
 
-    /**
-     * Check if SDK is initialized.
-     */
+    // Check if SDK is initialized
     fun isInitialized(): Boolean = isInitialized
 
-    /**
-     * Get current configuration.
-     */
+    // Get current configuration
     fun getConfig(): AppTrackerConfig? = config
 
-    /**
-     * Check if a project exists in the backend.
-     * Can be called before SDK initialization.
-     * @param projectKey Project key to check
-     * @param baseUrl Base URL of the backend
-     * @return true if project exists, false otherwise
-     */
+    // Check if a project exists in the backend
     suspend fun projectExists(projectKey: String, baseUrl: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
@@ -221,13 +179,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Find a project by name.
-     * Can be called before SDK initialization.
-     * @param projectName Name of the project to find
-     * @param baseUrl Base URL of the backend
-     * @return Project key if found, null otherwise
-     */
+    // Find a project by name in the backend
     suspend fun findProjectByName(projectName: String, baseUrl: String): String? {
         return withContext(Dispatchers.IO) {
             try {
@@ -272,13 +224,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Create a project in the backend.
-     * Can be called before SDK initialization.
-     * @param projectName Name of the project
-     * @param baseUrl Base URL of the backend
-     * @return Project key if created successfully, null otherwise
-     */
+    // Create a project in the backend
     suspend fun createProject(projectName: String, baseUrl: String): String? {
         return withContext(Dispatchers.IO) {
             try {
@@ -300,16 +246,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Ensure project exists and get its key, using SharedPreferences for persistence.
-     * This is the main method used by initialize().
-     * 
-     * @param context Application context for SharedPreferences
-     * @param projectName Project name
-     * @param baseUrl Base URL of the backend
-     * @param providedProjectKey Optional project key provided by user (takes precedence)
-     * @return Project key if exists or was created successfully, null otherwise
-     */
+    // Ensure project exists and get its key, using SharedPreferences for persistence
     private suspend fun ensureProjectAndGetKeyWithContext(
         context: Context,
         projectName: String,
@@ -371,14 +308,7 @@ object AppTracker {
         }
     }
 
-    /**
-     * Ensure project exists and get its key.
-     * Can be called before SDK initialization.
-     * @param projectName Project name
-     * @param baseUrl Base URL of the backend
-     * @param savedProjectKey Optional saved project key to check first
-     * @return Project key if exists or was created successfully, null otherwise
-     */
+    // Ensure project exists and get its key - can be called before SDK initialization
     suspend fun ensureProjectAndGetKey(
         projectName: String,
         baseUrl: String,

@@ -14,32 +14,24 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
-/**
- * Request model for batch events API.
- */
+// Request model for batch events API
 data class BatchEventsRequest(
     val projectKey: String,
     val events: List<Event>
 )
 
-/**
- * Response model for batch events API.
- */
+// Response model for batch events API
 data class BatchEventsResponse(
     val received: Int,
     val inserted: Int
 )
 
-/**
- * Request model for creating a project.
- */
+// Request model for creating a project
 data class CreateProjectRequest(
     val name: String
 )
 
-/**
- * Response model for project creation.
- */
+// Response model for project creation
 data class ProjectResponse(
     val name: String,
     val projectKey: String,
@@ -47,16 +39,12 @@ data class ProjectResponse(
     val isActive: Boolean
 )
 
-/**
- * Response model for getting projects.
- */
+// Response model for getting projects
 data class ProjectsResponse(
     val projects: List<ProjectResponse>
 )
 
-/**
- * Retrofit interface for AppTracker API.
- */
+// Retrofit interface for AppTracker API
 interface AppTrackerApi {
     @POST("/v1/events/batch")
     suspend fun sendBatchEvents(@Body request: BatchEventsRequest): Response<BatchEventsResponse>
@@ -71,9 +59,7 @@ interface AppTrackerApi {
     suspend fun createProject(@Body request: CreateProjectRequest): Response<ProjectResponse>
 }
 
-/**
- * Factory for creating API client instances.
- */
+// Factory for creating API client instances
 object ApiClient {
     private val gson: Gson = GsonBuilder()
         .setLenient()

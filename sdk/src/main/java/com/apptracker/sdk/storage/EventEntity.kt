@@ -4,9 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.apptracker.sdk.Event
 
-/**
- * Room entity for storing events locally.
- */
+// Room entity for storing events locally
 @Entity(tableName = "events")
 data class EventEntity(
     @PrimaryKey(autoGenerate = true)

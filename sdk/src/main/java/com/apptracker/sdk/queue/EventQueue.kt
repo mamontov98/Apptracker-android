@@ -104,31 +104,23 @@ class EventQueue(
         }
     }
 
-    /**
-     * Set the current user ID.
-     */
+    // Set the current user ID
     fun setUserId(userId: String?) {
         currentUserId = userId
         prefs.edit().putString("user_id", userId).apply()
     }
 
-    /**
-     * Get the current user ID.
-     */
+    // Get the current user ID
     fun getUserId(): String? {
         return currentUserId ?: prefs.getString("user_id", null)
     }
 
-    /**
-     * Set anonymous ID.
-     */
+    // Set anonymous ID
     fun setAnonymousId(anonymousId: String) {
         prefs.edit().putString("anonymous_id", anonymousId).apply()
     }
 
-    /**
-     * Flush all pending events to the server.
-     */
+    // Flush all pending events to the server
     suspend fun flush() {
         withContext(Dispatchers.IO) {
             try {
@@ -175,9 +167,7 @@ class EventQueue(
         }
     }
 
-    /**
-     * Start periodic flush job.
-     */
+    // Start periodic flush job
     private fun startPeriodicFlush() {
         flushJob?.cancel()
         android.util.Log.d("AppTracker", "EventQueue: Starting periodic flush with interval: ${flushInterval}ms")
@@ -190,16 +180,12 @@ class EventQueue(
         }
     }
 
-    /**
-     * Stop the periodic flush job.
-     */
+    // Stop the periodic flush job
     fun stop() {
         flushJob?.cancel()
     }
 
-    /**
-     * Get the number of pending events.
-     */
+    // Get the number of pending events
     suspend fun getPendingCount(): Int {
         return withContext(Dispatchers.IO) {
             eventDao.getEventCount()

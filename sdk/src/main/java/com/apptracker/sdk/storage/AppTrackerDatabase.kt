@@ -5,9 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-/**
- * Room database for storing events locally.
- */
+// Room database for storing events locally
 @Database(
     entities = [EventEntity::class],
     version = 1,
