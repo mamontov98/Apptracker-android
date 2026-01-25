@@ -105,6 +105,50 @@ object AppTracker {
         }
     }
 
+    // Track a process event with process context (processName, processId, processStep) for process/flow funnel tracking
+    fun trackProcess(
+        eventName: String,
+        processName: String,
+        processId: String,
+        processStep: String, // "START" or "END"
+        properties: Map<String, Any>? = null
+    ) {
+        // Validate processStep
+        if (processStep != "START" && processStep != "END") {
+            android.util.Log.e("AppTracker", "Invalid processStep: $processStep. Must be 'START' or 'END'")
+            return
+        }
+
+        android.util.Log.d("AppTracker", "trackProcess() called: eventName=$eventName, processName=$processName, processId=$processId, processStep=$processStep")
+        
+        val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")
+        }.format(java.util.Date())
+        
+        val event = Event(
+            eventName = eventName,
+            timestamp = timestamp,
+            properties = properties,
+            processName = processName,
+            processId = processId,
+            processStep = processStep
+        )
+
+        if (isInitialized) {
+            // SDK is initialized - send directly
+            android.util.Log.d("AppTracker", "trackProcess() - SDK initialized, sending process event to queue: $eventName")
+            CoroutineScope(Dispatchers.IO).launch {
+                eventQueue?.enqueue(event)
+            }
+        } else {
+            // SDK not initialized yet - save to pending queue
+            synchronized(pendingEvents) {
+                pendingEvents.add(event)
+            }
+            android.util.Log.d("AppTracker", "Process event queued (SDK not initialized yet): $eventName. Total pending: ${pendingEvents.size}")
+        }
+    }
+
     // Identify a user - can be called before initialization
     fun identify(userId: String) {
         if (isInitialized) {

@@ -15,6 +15,10 @@ data class EventEntity(
     val userId: String?,
     val sessionId: String?,
     val propertiesJson: String?, // Stored as JSON string
+    // Process tracking fields (optional)
+    val processName: String? = null,
+    val processId: String? = null,
+    val processStep: String? = null, // "START" or "END"
     val createdAt: Long = System.currentTimeMillis()
 ) {
     fun toEvent(): Event {
@@ -24,7 +28,10 @@ data class EventEntity(
             anonymousId = anonymousId,
             userId = userId,
             sessionId = sessionId,
-            properties = propertiesJson?.let { parsePropertiesJson(it) }
+            properties = propertiesJson?.let { parsePropertiesJson(it) },
+            processName = processName,
+            processId = processId,
+            processStep = processStep
         )
     }
 
@@ -36,7 +43,10 @@ data class EventEntity(
                 anonymousId = event.anonymousId,
                 userId = event.userId,
                 sessionId = event.sessionId,
-                propertiesJson = event.properties?.let { serializeProperties(it) }
+                propertiesJson = event.properties?.let { serializeProperties(it) },
+                processName = event.processName,
+                processId = event.processId,
+                processStep = event.processStep
             )
         }
 

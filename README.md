@@ -139,7 +139,46 @@ AppTracker.track("purchase", mapOf(
 AppTracker.identify("user-12345")
 ```
 
-### 4. Flush Events (Optional)
+### 4. Track Process Events (Optional)
+
+Process tracking allows you to track multiple processes/flows per user, which is useful for scenarios like:
+- Multiple checkout sessions per user
+- Parallel onboarding flows
+- Multiple workflows running simultaneously
+
+```kotlin
+// Start a process (e.g., checkout)
+val processId = UUID.randomUUID().toString()
+AppTracker.trackProcess(
+    eventName = "checkout_started",
+    processName = "checkout",
+    processId = processId,
+    processStep = "START",
+    properties = mapOf(
+        "cart_value" to 99.99,
+        "item_count" to 3
+    )
+)
+
+// End a process (e.g., purchase completed)
+AppTracker.trackProcess(
+    eventName = "purchase_success",
+    processName = "checkout",
+    processId = processId,  // Same processId as START
+    processStep = "END",
+    properties = mapOf(
+        "order_id" to "order-12345",
+        "total_amount" to 99.99
+    )
+)
+```
+
+**Important:** 
+- `processStep` must be either `"START"` or `"END"`
+- Use the same `processId` for START and END events of the same process instance
+- `processName` should be consistent across related events (e.g., "checkout", "onboarding")
+
+### 5. Flush Events (Optional)
 
 ```kotlin
 // Manually flush pending events to the server

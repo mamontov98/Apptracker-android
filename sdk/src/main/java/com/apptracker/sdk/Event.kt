@@ -7,7 +7,11 @@ data class Event(
     val anonymousId: String? = null,
     val userId: String? = null,
     val sessionId: String? = null,
-    val properties: Map<String, Any>? = null
+    val properties: Map<String, Any>? = null,
+    // Process tracking fields (optional)
+    val processName: String? = null,
+    val processId: String? = null,
+    val processStep: String? = null // "START" or "END"
 )
 
 
